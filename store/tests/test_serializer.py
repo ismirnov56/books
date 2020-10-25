@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from store.models import Book, UserBookRelation
 from store.serializers import BooksSerializer
+from store.services.getqueryfromdb import get_books_with_annotate
 
 
 class BookSerializerTestCase(TestCase):
@@ -31,11 +32,7 @@ class BookSerializerTestCase(TestCase):
         user_book_3.rate = 4
         user_book_3.save()
 
-        books = Book.objects.all().annotate(
-            count_likes=Count(Case(When(userbookrelation__like=True, then=1))),
-            price_with_discount=F('price') - F('discount'),
-            owner_name=F('owner__username')
-        ).prefetch_related('readers').order_by('id')
+        books = get_books_with_annotate()
         data = BooksSerializer(books, many=True).data
         expected_data = [
             {

@@ -46,9 +46,9 @@ class UserBookRelation(models.Model):
     def save(self, *args, **kwargs):
         """
         При изменении или создании оценки производится автоматический пересчет средней оценки
-        книги в поле rating используя дополнительную логику, которая реализована в logic.py
+        книги в поле rating используя дополнительную логику, которая реализована в .services/logic.py
         """
-        from store.logic import set_rating
+        from store.services.logic import set_rating
 
         creating = not self.pk
         old_rating = self.rate
