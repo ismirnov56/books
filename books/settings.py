@@ -20,8 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'k7epv_=%n5y2wwb*poh-443good3#jvn$24v3&#-h=!*fuu86('
-# SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -152,7 +151,5 @@ create settings for social auth with github
 '''
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
-SOCIAL_AUTH_GITHUB_KEY = 'dcd695335000ad3a4cb3'
-SOCIAL_AUTH_GITHUB_SECRET = '4bde3e9b42b7aec5c893c8c3b1181fa10ed943cf'
-# SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
-# SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
