@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.utils.log import DEFAULT_LOGGING
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -58,6 +60,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'debug_toolbar_force.middleware.ForceDebugToolbarMiddleware',
+    'requestlogs.middleware.RequestLogsMiddleware',
+    'requestlogs.middleware.RequestIdMiddleware',
 ]
 
 ROOT_URLCONF = 'books.urls'
@@ -136,7 +140,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
 '''
 Settings REST_FRAMEWORK
 '''
@@ -145,7 +148,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-
 '''
 create settings for social auth with github
 '''
@@ -153,3 +155,81 @@ SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
 SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
+
+REQUESTLOGS = {
+    'STORAGE_CLASS': 'requestlogs.storages.LoggingStorage',
+    'ENTRY_CLASS': 'requestlogs.entries.RequestLogEntry',
+    'SERIALIZER_CLASS': 'requestlogs.storages.RequestIdEntrySerializer',
+    'SECRETS': ['password', 'token'],
+    'ATTRIBUTE_NAME': '_requestlog',
+    'METHODS': ('GET', 'PUT', 'PATCH', 'POST', 'DELETE'),
+    'REQUEST_ID_HTTP_HEADER': 'X_DJANGO_REQUEST_ID',
+}
+
+# logging with django-requestlogs and default django logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'request_id_context': {
+            '()': 'requestlogs.logging.RequestIdContext',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'requestlogs_to_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '.\\log\\requestlogs.log',
+        },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '.\\log\\debug.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'info': {
+            'handlers': ['file_debug'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'django': {
+            'handlers': ['console', 'file_debug'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'requestlogs': {
+            'handlers': ['requestlogs_to_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['file_debug', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['file_debug'],
+            'level': 'WARNING',
+            'propagate': True,
+        }
+    },
+}

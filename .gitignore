@@ -9,3 +9,4 @@ venv
 htmlcov
 store/migrations/*
 !store/migrations/__init__.py
+log/*
